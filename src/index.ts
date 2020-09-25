@@ -65,10 +65,6 @@ const main = async () => {
 
   app.use("/user", userRouter);
 
-  app.get("/", authOnly, (_, res) => {
-    res.send("hi");
-  });
-
   app.listen(4000, () => {
     console.log("Listening");
   });

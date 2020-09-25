@@ -4,18 +4,27 @@ import userService from "../services/userService";
 import { ResErrors } from "../types";
 import { body } from "express-validator";
 import { handleValidation } from "../middleware/handleValidation";
+import { authOnly } from "../middleware/authOnly";
 
 const userRouter = Router();
 
-type LoginType = {
+type RegisterType = {
   username: string;
   email: string;
   password: string;
 };
-type RegisterType = {
+type LoginType = {
   usernameOrEmail: string;
   password: string;
 };
+
+userRouter.get("/me", authOnly, async (req, res) => {
+  const user = await userService.findById(req.session!.userId);
+  if (!user) {
+    return;
+  }
+  res.json({ id: user.id, username: user.username, email: user.email });
+});
 
 userRouter.post(
   "/register",
@@ -24,7 +33,7 @@ userRouter.post(
   body("password").isLength({ min: 3 }).withMessage("Minimum Length 3"),
   handleValidation,
   async (req, res) => {
-    const data: LoginType = req.body; // :TODO Validata data
+    const data: RegisterType = req.body; // :TODO Validata data
     const { user, success } = await userService.create(data);
 
     if (!success) {
@@ -46,7 +55,7 @@ userRouter.post(
 );
 
 userRouter.post("/login", async (req, res) => {
-  const data: RegisterType = req.body;
+  const data: LoginType = req.body;
 
   const user = await userService.findUser({ username: data.usernameOrEmail });
 

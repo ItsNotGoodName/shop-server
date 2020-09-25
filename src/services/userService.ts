@@ -43,6 +43,10 @@ class UserService {
     return argon2.verify(user.password, password);
   }
 
+  async findById(id: number) {
+    return User.findOne(id);
+  }
+
   async findUser(data: emailOrUsernameParams): Promise<undefined | User> {
     let qb = getRepository(User).createQueryBuilder("user");
 
