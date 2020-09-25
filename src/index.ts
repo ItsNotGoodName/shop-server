@@ -20,7 +20,6 @@ import {
 import { User } from "./entities/User";
 import userRouter from "./routers/userRouter";
 import { Item } from "./entities/Item";
-import { authOnly } from "./middleware/authOnly";
 
 const main = async () => {
   const conn = await createConnection({

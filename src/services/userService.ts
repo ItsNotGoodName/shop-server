@@ -1,5 +1,4 @@
 import argon2 from "argon2";
-import userRouter from "src/routers/userRouter";
 import { getRepository } from "typeorm";
 import { User } from "../entities/User";
 

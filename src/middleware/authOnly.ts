@@ -9,4 +9,5 @@ export const authOnly: RequestHandler = (req, res, next) => {
     });
   }
   next();
+  return;
 };

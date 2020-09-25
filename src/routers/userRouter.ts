@@ -1,10 +1,10 @@
 import Router from "express";
+import { body } from "express-validator";
 import { COOKIE_NAME } from "../constants";
+import { authOnly } from "../middleware/authOnly";
+import { handleValidation } from "../middleware/handleValidation";
 import userService from "../services/userService";
 import { ResErrors } from "../types";
-import { body } from "express-validator";
-import { handleValidation } from "../middleware/handleValidation";
-import { authOnly } from "../middleware/authOnly";
 
 const userRouter = Router();
 
