@@ -28,9 +28,21 @@ userRouter.get("/me", authOnly, async (req, res) => {
 
 userRouter.post(
   "/register",
-  body("username").isLength({ min: 3 }).withMessage("Minumum length 3"),
-  body("email").isEmail().withMessage("Not valid email"),
-  body("password").isLength({ min: 3 }).withMessage("Minimum Length 3"),
+  body("username")
+    .notEmpty()
+    .withMessage("Missing username")
+    .isLength({ min: 3 })
+    .withMessage("Minumum length 3"),
+  body("email")
+    .notEmpty()
+    .withMessage("Missing email")
+    .isEmail()
+    .withMessage("Not valid email"),
+  body("password")
+    .notEmpty()
+    .withMessage("Missing password")
+    .isLength({ min: 3 })
+    .withMessage("Minimum Length 3"),
   handleValidation,
   async (req, res) => {
     const data: RegisterType = req.body; // :TODO Validata data
@@ -54,26 +66,33 @@ userRouter.post(
   }
 );
 
-userRouter.post("/login", async (req, res) => {
-  const data: LoginType = req.body;
+userRouter.post(
+  "/login",
+  body("password").notEmpty(),
+  handleValidation,
+  async (req, res) => {
+    const data: LoginType = req.body;
 
-  const user = await userService.findUser({ username: data.usernameOrEmail });
+    const user = await userService.findUser({ username: data.usernameOrEmail });
 
-  if (!user) {
+    if (!user) {
+      res.json({
+        errors: [
+          { field: "username", msg: "User does not exists" },
+        ] as ResErrors,
+      });
+      return;
+    }
+
+    const success = await userService.login({ user, password: data.password });
+
+    req.session!.userId = user.id;
+
     res.json({
-      errors: [{ field: "username", msg: "User does not exists" }] as ResErrors,
+      success,
     });
-    return;
   }
-
-  const success = await userService.login({ user, password: data.password });
-
-  req.session!.userId = user.id;
-
-  res.json({
-    success,
-  });
-});
+);
 
 userRouter.post("/logout", (req, res) => {
   req.session!.destroy((err) => {
