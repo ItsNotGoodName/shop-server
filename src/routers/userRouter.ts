@@ -2,6 +2,8 @@ import Router from "express";
 import { COOKIE_NAME } from "../constants";
 import userService from "../services/userService";
 import { ResErrors } from "../types";
+import { body } from "express-validator";
+import { handleValidation } from "../middleware/handleValidation";
 
 const userRouter = Router();
 
@@ -15,26 +17,33 @@ type RegisterType = {
   password: string;
 };
 
-userRouter.post("/register", async (req, res) => {
-  const data: LoginType = req.body; // :TODO Validata data
-  const { user, success } = await userService.create(data);
+userRouter.post(
+  "/register",
+  body("username").isLength({ min: 3 }).withMessage("Minumum length 3"),
+  body("email").isEmail().withMessage("Not valid email"),
+  body("password").isLength({ min: 3 }).withMessage("Minimum Length 3"),
+  handleValidation,
+  async (req, res) => {
+    const data: LoginType = req.body; // :TODO Validata data
+    const { user, success } = await userService.create(data);
 
-  if (!success) {
-    let errors: ResErrors = [];
+    if (!success) {
+      let errors: ResErrors = [];
 
-    if (user.username === data.username)
-      errors.push({ field: "username", msg: "Username is taken" });
+      if (user.username === data.username)
+        errors.push({ field: "username", msg: "Username is taken" });
 
-    if (user.email === data.email)
-      errors.push({ field: "email", msg: "Email is taken" });
+      if (user.email === data.email)
+        errors.push({ field: "email", msg: "Email is taken" });
 
-    res.json({ errors });
-    return;
+      res.json({ errors });
+      return;
+    }
+
+    req.session!.userId = user.id;
+    res.json({ username: user.username, email: user.email });
   }
-
-  req.session!.userId = user.id;
-  res.json({ username: user.username, email: user.email });
-});
+);
 
 userRouter.post("/login", async (req, res) => {
   const data: RegisterType = req.body;
