@@ -25,7 +25,12 @@ userRouter.get("/me", authOnly, async (req, res) => {
     return;
   }
   res.json({
-    user: { id: user.id, username: user.username, email: user.email },
+    user: {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      createdAt: user.createdAt,
+    },
     success: true,
   });
 });
@@ -49,7 +54,7 @@ userRouter.post(
     .withMessage("Minimum Length 3"),
   handleValidation,
   async (req, res) => {
-    const data: RegisterType = req.body; // :TODO Validata data
+    const data: RegisterType = req.body;
     const { user, success } = await userService.create(data);
 
     if (!success) {
