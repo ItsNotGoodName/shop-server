@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { User } from "./User";
-
+import ColumnNumericTransformer from "../utils/ColumnNumericTransforme";
 @Entity()
 export class Item extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -20,15 +20,11 @@ export class Item extends BaseEntity {
   @Column()
   description: string;
 
-  @Column("numeric", { scale: 2 })
-  price: string;
-  balance: string;
+  @Column("numeric", { scale: 2, transformer: ColumnNumericTransformer })
+  price: number;
 
   @ManyToOne(() => User, (user) => user.items)
   sellor: User;
-
-  @Column()
-  sellorId: number;
 
   @CreateDateColumn()
   createdAt: Date;

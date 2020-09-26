@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { Item } from "./Item";
+import ColumnNumericTransformer from "../utils/ColumnNumericTransforme";
 
 @Entity()
 export class User extends BaseEntity {
@@ -23,8 +24,12 @@ export class User extends BaseEntity {
   @Column()
   password!: string;
 
-  @Column("numeric", { scale: 2, default: 0 })
-  balance: string;
+  @Column("numeric", {
+    scale: 2,
+    default: 0,
+    transformer: ColumnNumericTransformer,
+  })
+  balance: number;
 
   @OneToMany(() => Item, (item) => item.sellor)
   items: Item[];

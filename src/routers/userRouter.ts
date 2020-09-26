@@ -30,7 +30,7 @@ userRouter.get("/me", authOnly, async (req, res) => {
       id: user.id,
       username: user.username,
       email: user.email,
-      balance: parseFloat(user.balance),
+      balance: user.balance,
       createdAt: user.createdAt.getTime(),
     },
   });

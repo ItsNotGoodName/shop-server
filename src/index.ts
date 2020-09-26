@@ -22,6 +22,7 @@ import {
 import { User } from "./entities/User";
 import userRouter from "./routers/userRouter";
 import { Item } from "./entities/Item";
+import itemRouter from "./routers/itemRouter";
 
 const main = async () => {
   const conn = await createConnection({
@@ -70,6 +71,7 @@ const main = async () => {
   );
 
   app.use("/user", userRouter);
+  app.use("/item", itemRouter);
 
   app.listen(PORT, () => {
     console.log("Listening");
