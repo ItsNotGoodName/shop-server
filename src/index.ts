@@ -13,6 +13,8 @@ import {
   DB_PASSWORD,
   DB_TYPE,
   DB_USERNAME,
+  ORIGIN,
+  PORT,
   PRODUCTION,
   REDIS_HOST,
   SESSION_SECRET,
@@ -62,14 +64,14 @@ const main = async () => {
 
   app.use(
     cors({
-      origin: "http://localhost:3000",
+      origin: ORIGIN,
       credentials: true,
     })
   );
 
   app.use("/user", userRouter);
 
-  app.listen(4000, () => {
+  app.listen(PORT, () => {
     console.log("Listening");
   });
 };
