@@ -29,7 +29,7 @@ userRouter.get("/me", authOnly, async (req, res) => {
       id: user.id,
       username: user.username,
       email: user.email,
-      createdAt: user.createdAt,
+      createdAt: user.createdAt.getTime(),
     },
     success: true,
   });
