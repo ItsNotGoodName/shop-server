@@ -5,6 +5,7 @@ import { authOnly } from "../middleware/authOnly";
 import { handleValidation } from "../middleware/handleValidation";
 import userService from "../services/userService";
 import { ResErrors } from "../types";
+import validator from "validator";
 
 const userRouter = Router();
 
@@ -23,7 +24,10 @@ userRouter.get("/me", authOnly, async (req, res) => {
   if (!user) {
     return;
   }
-  res.json({ id: user.id, username: user.username, email: user.email });
+  res.json({
+    user: { id: user.id, username: user.username, email: user.email },
+    success: true,
+  });
 });
 
 userRouter.post(
@@ -62,29 +66,48 @@ userRouter.post(
     }
 
     req.session!.userId = user.id;
-    res.json({ username: user.username, email: user.email });
+    res.json({
+      user: { username: user.username, email: user.email },
+      success: true,
+    });
   }
 );
 
 userRouter.post(
   "/login",
   body("password").notEmpty(),
+  body("usernameOrEmail").notEmpty(),
   handleValidation,
   async (req, res) => {
     const data: LoginType = req.body;
-
-    const user = await userService.findUser({ username: data.usernameOrEmail });
+    let user;
+    if (validator.isEmail(data.usernameOrEmail)) {
+      user = await userService.findUser({
+        email: data.usernameOrEmail,
+      });
+    } else {
+      user = await userService.findUser({
+        username: data.usernameOrEmail,
+      });
+    }
 
     if (!user) {
       res.json({
         errors: [
-          { field: "username", msg: "User does not exists" },
+          { field: "usernameOrEmail", msg: "User does not exists" },
         ] as ResErrors,
       });
       return;
     }
 
     const success = await userService.login({ user, password: data.password });
+
+    if (!success) {
+      res.json({
+        errors: [{ field: "password", msg: "Incorrect password" }] as ResErrors,
+      });
+      return;
+    }
 
     req.session!.userId = user.id;
 
