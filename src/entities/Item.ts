@@ -20,8 +20,9 @@ export class Item extends BaseEntity {
   @Column()
   description: string;
 
-  @Column()
-  price: number;
+  @Column("numeric", { scale: 2 })
+  price: string;
+  balance: string;
 
   @ManyToOne(() => User, (user) => user.items)
   sellor: User;

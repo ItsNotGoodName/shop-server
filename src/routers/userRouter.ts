@@ -14,6 +14,7 @@ type RegisterType = {
   email: string;
   password: string;
 };
+
 type LoginType = {
   usernameOrEmail: string;
   password: string;
@@ -29,9 +30,9 @@ userRouter.get("/me", authOnly, async (req, res) => {
       id: user.id,
       username: user.username,
       email: user.email,
+      balance: parseFloat(user.balance),
       createdAt: user.createdAt.getTime(),
     },
-    success: true,
   });
 });
 
@@ -80,8 +81,8 @@ userRouter.post(
 
 userRouter.post(
   "/login",
-  body("password").notEmpty(),
-  body("usernameOrEmail").notEmpty(),
+  body("password").notEmpty().withMessage("Missing password"),
+  body("usernameOrEmail").notEmpty().withMessage("Missing username or email"),
   handleValidation,
   async (req, res) => {
     const data: LoginType = req.body;
