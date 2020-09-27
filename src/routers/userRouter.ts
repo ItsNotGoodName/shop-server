@@ -74,7 +74,6 @@ userRouter.post(
     req.session!.userId = user.id;
     res.json({
       user: { username: user.username, email: user.email },
-      success: true,
     });
   }
 );
@@ -88,13 +87,9 @@ userRouter.post(
     const data: LoginType = req.body;
     let user;
     if (validator.isEmail(data.usernameOrEmail)) {
-      user = await userService.findUser({
-        email: data.usernameOrEmail,
-      });
+      user = await userService.findUserByEmail(data.usernameOrEmail);
     } else {
-      user = await userService.findUser({
-        username: data.usernameOrEmail,
-      });
+      user = await userService.findUserByUsername(data.usernameOrEmail);
     }
 
     if (!user) {

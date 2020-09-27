@@ -38,15 +38,22 @@ class UserService {
     };
   }
 
-  async login({ user, password }: loginParams): Promise<boolean> {
+  login({ user, password }: loginParams): Promise<boolean> {
     return argon2.verify(user.password, password);
   }
 
-  async findById(id: number) {
+  findById(id: number): Promise<User | undefined> {
     return User.findOne(id);
   }
 
-  async findUser(data: emailOrUsernameParams): Promise<undefined | User> {
+  findUserByEmail(email: string): Promise<User | undefined> {
+    return User.findOne({ email: email });
+  }
+  findUserByUsername(username: string): Promise<User | undefined> {
+    return User.findOne({ username: username });
+  }
+
+  findUser(data: emailOrUsernameParams): Promise<User | undefined> {
     let qb = getRepository(User).createQueryBuilder("user");
 
     if (data.username) {

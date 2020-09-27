@@ -1,33 +1,38 @@
 import Router from "express";
+import { param, query } from "express-validator";
+import { authOnly } from "../middleware/authOnly";
+import { handleValidation } from "../middleware/handleValidation";
 import itemService from "../services/itemService";
 import userService from "../services/userService";
-import { authOnly } from "../middleware/authOnly";
-import { param, query } from "express-validator";
-import { handleValidation } from "../middleware/handleValidation";
 
 const itemRouter = Router();
+
+type ItemType = {
+  id: number;
+  title: string;
+  description: string;
+  price: number;
+  createdAt: number;
+  sellor: { id: number; username: string };
+};
 
 itemRouter.get(
   "/new",
   query("page").optional().isInt({ gt: 0 }),
   handleValidation,
   async (req, res) => {
-    let page;
+    let page: number;
     if (typeof req.query.page === "string") {
       page = parseInt(req.query.page);
     } else {
       page = 1;
     }
 
-    const { items: data, count } = await itemService.findNew((page - 1) * 10);
-    const items: {
-      id: number;
-      title: string;
-      description: string;
-      price: number;
-      createdAt: number;
-      sellor: { id: number; username: string };
-    }[] = [];
+    const { items: data, count } = await itemService.findNew(
+      (page - 1) * itemService.limit
+    );
+    const maxPage = Math.ceil(count / itemService.limit);
+    const items: ItemType[] = [];
 
     for (let i = 0; i < data.length; i++) {
       items.push({
@@ -42,7 +47,8 @@ itemRouter.get(
         },
       });
     }
-    res.json({ items, maxPage: Math.ceil(count / 10) });
+
+    res.json({ items, maxPage });
   }
 );
 
@@ -63,15 +69,19 @@ itemRouter.get(
       return;
     }
 
-    res.json({
+    const json: ItemType = {
       id: item.id,
       title: item.title,
       description: item.description,
       price: item.price,
-      sellorUsername: item.sellor.username,
       createdAt: item.createdAt.getTime(),
-      updatedAt: item.updatedAt.getTime(),
-    });
+      sellor: {
+        id: item.sellor.id,
+        username: item.sellor.username,
+      },
+    };
+
+    res.json(json);
   }
 );
 
@@ -90,13 +100,19 @@ itemRouter.post("/create", authOnly, async (req, res) => {
     price: 20.33,
   });
 
-  res.json({
+  const json: ItemType = {
     id: item.id,
     title: item.title,
     description: item.description,
     price: item.price,
+    sellor: {
+      id: item.sellor.id,
+      username: item.sellor.username,
+    },
     createdAt: item.createdAt.getTime(),
-  });
+  };
+
+  res.json(json);
 });
 
 export default itemRouter;

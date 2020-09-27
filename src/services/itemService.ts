@@ -8,14 +8,14 @@ class ItemService {
     this.limit = 10;
   }
 
-  async create(
+  create(
     user: User,
     {
       title,
       description,
       price,
     }: { title: string; description: string; price: number }
-  ) {
+  ): Promise<Item> {
     return Item.create({
       title,
       description,
@@ -38,7 +38,7 @@ class ItemService {
     return { items, count };
   }
 
-  async findById(id: number) {
+  findById(id: number): Promise<Item | undefined> {
     return Item.findOne(id, { relations: ["sellor"] });
   }
 }
