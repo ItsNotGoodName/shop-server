@@ -42,7 +42,7 @@ itemRouter.get(
         },
       });
     }
-    res.json({ items, numPages: Math.ceil(count / 10) });
+    res.json({ items, maxPage: Math.ceil(count / 10) });
   }
 );
 
