@@ -4,8 +4,18 @@ import { User } from "../entities/User";
 
 class ItemService {
   limit: number;
+  itemSelect: string[];
+  userSelect: string[];
   constructor() {
     this.limit = 10;
+    this.itemSelect = [
+      "item.id",
+      "item.title",
+      "item.description",
+      "item.price",
+      "item.createdAt",
+    ];
+    this.userSelect = ["sellor.id", "sellor.username"];
   }
 
   create(
@@ -30,7 +40,10 @@ class ItemService {
   ): Promise<{ items: Item[]; count: number }> {
     const [items, count] = await getRepository(Item)
       .createQueryBuilder("item")
-      .leftJoinAndSelect("item.sellor", "item.sellor")
+      .select(this.itemSelect)
+      .leftJoin("item.sellor", "sellor")
+      .addSelect(this.userSelect)
+      .leftJoinAndSelect("item.photos", "item.photos")
       .orderBy("item.id", "DESC")
       .skip(skip)
       .take(limit)
@@ -39,7 +52,13 @@ class ItemService {
   }
 
   findById(id: number): Promise<Item | undefined> {
-    return Item.findOne(id, { relations: ["sellor"] });
+    return Item.createQueryBuilder("item")
+      .select(this.itemSelect)
+      .where("item.id = :id", { id })
+      .leftJoin("item.sellor", "sellor")
+      .addSelect(this.userSelect)
+      .leftJoinAndSelect("item.photos", "photos")
+      .getOne();
   }
 }
 

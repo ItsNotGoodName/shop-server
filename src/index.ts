@@ -23,6 +23,7 @@ import { User } from "./entities/User";
 import userRouter from "./routers/userRouter";
 import { Item } from "./entities/Item";
 import itemRouter from "./routers/itemRouter";
+import { Photo } from "./entities/Photo";
 
 const main = async () => {
   const conn = await createConnection({
@@ -34,7 +35,7 @@ const main = async () => {
     logging: true,
     migrations: [path.join(__dirname, "./migrations/*")],
     synchronize: true,
-    entities: [User, Item],
+    entities: [User, Item, Photo],
   });
   conn.runMigrations();
 

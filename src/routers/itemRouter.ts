@@ -13,6 +13,7 @@ type ItemType = {
   description: string;
   price: number;
   createdAt: number;
+  photos: [{ url: string }];
   sellor: { id: number; username: string };
 };
 
@@ -28,26 +29,10 @@ itemRouter.get(
       page = 1;
     }
 
-    const { items: data, count } = await itemService.findNew(
+    const { items, count } = await itemService.findNew(
       (page - 1) * itemService.limit
     );
     const maxPage = Math.ceil(count / itemService.limit);
-    const items: ItemType[] = [];
-
-    for (let i = 0; i < data.length; i++) {
-      items.push({
-        id: data[i].id,
-        title: data[i].title,
-        description: data[i].description,
-        price: data[i].price,
-        createdAt: data[i].createdAt.getTime(),
-        sellor: {
-          id: data[i].sellor.id,
-          username: data[i].sellor.username,
-        },
-      });
-    }
-
     res.json({ items, maxPage });
   }
 );
@@ -64,24 +49,13 @@ itemRouter.get(
   async (req, res) => {
     const id = parseInt(req.params.id);
     const item = await itemService.findById(id);
+
     if (!item) {
       res.json({ errors: [{ field: "id", msg: "Item does not exists" }] });
       return;
     }
 
-    const json: ItemType = {
-      id: item.id,
-      title: item.title,
-      description: item.description,
-      price: item.price,
-      createdAt: item.createdAt.getTime(),
-      sellor: {
-        id: item.sellor.id,
-        username: item.sellor.username,
-      },
-    };
-
-    res.json(json);
+    res.json(item);
   }
 );
 
@@ -100,19 +74,7 @@ itemRouter.post("/create", authOnly, async (req, res) => {
     price: 20.33,
   });
 
-  const json: ItemType = {
-    id: item.id,
-    title: item.title,
-    description: item.description,
-    price: item.price,
-    sellor: {
-      id: item.sellor.id,
-      username: item.sellor.username,
-    },
-    createdAt: item.createdAt.getTime(),
-  };
-
-  res.json(json);
+  res.json(await itemService.findById(item.id));
 });
 
 export default itemRouter;

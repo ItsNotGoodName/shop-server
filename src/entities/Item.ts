@@ -4,11 +4,13 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 import { User } from "./User";
 import ColumnNumericTransformer from "../utils/ColumnNumericTransforme";
+import { Photo } from "./Photo";
 @Entity()
 export class Item extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -25,6 +27,9 @@ export class Item extends BaseEntity {
 
   @ManyToOne(() => User, (user) => user.items)
   sellor: User;
+
+  @OneToMany(() => Photo, (photo) => photo.item)
+  photos: Photo[];
 
   @CreateDateColumn()
   createdAt: Date;
