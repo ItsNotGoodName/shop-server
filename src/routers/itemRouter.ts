@@ -29,7 +29,6 @@ itemRouter.get(
 
 itemRouter.get(
   "/id/:id",
-  authOnly,
   param("id")
     .notEmpty()
     .withMessage("Id not specified")
@@ -45,7 +44,7 @@ itemRouter.get(
       return;
     }
 
-    res.json(item);
+    res.json({ item });
   }
 );
 
