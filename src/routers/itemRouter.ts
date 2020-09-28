@@ -7,16 +7,6 @@ import userService from "../services/userService";
 
 const itemRouter = Router();
 
-type ItemType = {
-  id: number;
-  title: string;
-  description: string;
-  price: number;
-  createdAt: number;
-  photos: [{ url: string }];
-  sellor: { id: number; username: string };
-};
-
 itemRouter.get(
   "/new",
   query("page").optional().isInt({ gt: 0 }),
@@ -62,7 +52,7 @@ itemRouter.get(
 // itemRouter.delete("/id/:id", (req, res) => {});
 
 itemRouter.post("/create", authOnly, async (req, res) => {
-  const user = await userService.findById(req.session!.userId);
+  const user = await userService.me(req.session!.userId);
   if (!user) {
     res.json({ success: false });
     return;

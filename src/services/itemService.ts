@@ -1,4 +1,3 @@
-import { getRepository } from "typeorm";
 import { Item } from "../entities/Item";
 import { User } from "../entities/User";
 
@@ -39,8 +38,7 @@ class ItemService {
     skip?: number,
     limit = this.limit
   ): Promise<{ items: Item[]; count: number }> {
-    const [items, count] = await getRepository(Item)
-      .createQueryBuilder("item")
+    const [items, count] = await Item.createQueryBuilder("item")
       .select(this.itemSelect)
       .leftJoin("item.sellor", "sellor")
       .addSelect(this.userSelect)

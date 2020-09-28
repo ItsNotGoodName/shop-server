@@ -21,18 +21,12 @@ type LoginType = {
 };
 
 userRouter.get("/me", authOnly, async (req, res) => {
-  const user = await userService.findById(req.session!.userId);
+  const user = await userService.me(req.session!.userId);
   if (!user) {
     return;
   }
   res.json({
-    user: {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      balance: user.balance,
-      createdAt: user.createdAt.getTime(),
-    },
+    user,
   });
 });
 
@@ -56,7 +50,7 @@ userRouter.post(
   handleValidation,
   async (req, res) => {
     const data: RegisterType = req.body;
-    const { user, success } = await userService.create(data);
+    const { user, success } = await userService.register(data);
 
     if (!success) {
       let errors: ResErrors = [];
@@ -73,7 +67,7 @@ userRouter.post(
 
     req.session!.userId = user.id;
     res.json({
-      user: { username: user.username, email: user.email },
+      success: true,
     });
   }
 );
@@ -105,7 +99,7 @@ userRouter.post(
 
     if (!success) {
       res.json({
-        errors: [{ field: "password", msg: "Incorrect password" }] as ResErrors,
+        errors: [{ field: "password", msg: "Incorrect password" }],
       });
       return;
     }
