@@ -18,20 +18,21 @@ class ItemService {
     this.userSelect = ["sellor.id", "sellor.username"];
   }
 
-  create(
+  async create(
     user: User,
     {
       title,
       description,
       price,
     }: { title: string; description: string; price: number }
-  ): Promise<Item> {
-    return Item.create({
+  ): Promise<number> {
+    const item = await Item.create({
       title,
       description,
       price: price,
       sellor: user,
     }).save();
+    return item.id;
   }
 
   async findNew(

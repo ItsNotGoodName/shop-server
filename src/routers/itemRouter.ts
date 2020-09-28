@@ -68,13 +68,15 @@ itemRouter.post("/create", authOnly, async (req, res) => {
     return;
   }
 
-  const item = await itemService.create(user, {
+  const id = await itemService.create(user, {
     title: "Test Item",
     description: "Test Description",
     price: 20.33,
   });
 
-  res.json(await itemService.findById(item.id));
+  res.json({
+    id,
+  });
 });
 
 export default itemRouter;
