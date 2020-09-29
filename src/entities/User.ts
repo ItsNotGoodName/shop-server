@@ -3,12 +3,15 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 import { Item } from "./Item";
 import ColumnNumericTransformer from "../utils/ColumnNumericTransforme";
+import { Cart } from "./Cart";
 
 @Entity()
 export class User extends BaseEntity {
@@ -33,6 +36,13 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Item, (item) => item.sellor)
   items: Item[];
+
+  @Column()
+  cartId: number;
+
+  @OneToOne(() => Cart)
+  @JoinColumn()
+  cart: Cart;
 
   @CreateDateColumn()
   createdAt: Date;

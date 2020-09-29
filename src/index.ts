@@ -24,6 +24,9 @@ import userRouter from "./routers/userRouter";
 import { Item } from "./entities/Item";
 import itemRouter from "./routers/itemRouter";
 import { Photo } from "./entities/Photo";
+import cartRouter from "./routers/cartRouter";
+import { Cart } from "./entities/Cart";
+import { CartItem } from "./entities/CartItems";
 
 const main = async () => {
   const conn = await createConnection({
@@ -35,7 +38,7 @@ const main = async () => {
     logging: true,
     migrations: [path.join(__dirname, "./migrations/*")],
     synchronize: true,
-    entities: [User, Item, Photo],
+    entities: [User, Item, Cart, CartItem, Photo],
   });
   conn.runMigrations();
 
@@ -73,6 +76,7 @@ const main = async () => {
 
   app.use("/user", userRouter);
   app.use("/item", itemRouter);
+  app.use("/cart", cartRouter);
 
   app.listen(PORT, () => {
     console.log("Listening");
