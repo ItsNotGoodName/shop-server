@@ -20,7 +20,7 @@ export class CartItem extends BaseEntity {
   @Column()
   itemId: number;
 
-  @OneToOne(() => Item)
+  @ManyToOne(() => Item)
   @JoinColumn()
   item: Item;
 
