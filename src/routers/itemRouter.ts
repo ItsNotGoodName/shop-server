@@ -1,5 +1,5 @@
 import Router from "express";
-import { param, query } from "express-validator";
+import { body, param, query } from "express-validator";
 import { authOnly } from "../middleware/authOnly";
 import { handleValidation } from "../middleware/handleValidation";
 import itemService from "../services/itemService";
@@ -50,22 +50,36 @@ itemRouter.get(
 
 // itemRouter.delete("/id/:id", (req, res) => {});
 
-itemRouter.post("/create", authOnly, async (req, res) => {
-  const user = await userService.me(req.session!.userId);
-  if (!user) {
-    res.json({ success: false });
-    return;
+itemRouter.post(
+  "/create",
+  authOnly,
+  body("title").notEmpty().isString(),
+  body("description").notEmpty().isString(),
+  body("price").notEmpty().isDecimal(),
+  handleValidation,
+  async (req, res) => {
+    const {
+      title,
+      description,
+      price,
+    }: { title: string; description: string; price: number } = req.body;
+
+    const user = await userService.me(req.session!.userId);
+    if (!user) {
+      res.json({ success: false });
+      return;
+    }
+
+    const id = await itemService.create(user, {
+      title,
+      description,
+      price,
+    });
+
+    res.json({
+      id,
+    });
   }
-
-  const id = await itemService.create(user, {
-    title: "Test Item",
-    description: "Test Description",
-    price: 20.33,
-  });
-
-  res.json({
-    id,
-  });
-});
+);
 
 export default itemRouter;
