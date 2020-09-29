@@ -43,7 +43,7 @@ cartRouter.use(authOnly);
 
 cartRouter.get("/", async (req, res) => {
   res.json({
-    cart: (await cartService.getCart(req.session!.userId)).cartItems,
+    cart: await cartService.getCartItems(req.session!.userId),
   });
 });
 
