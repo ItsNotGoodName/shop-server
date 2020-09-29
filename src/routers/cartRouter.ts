@@ -42,7 +42,9 @@ const parseItem: RequestHandler = async (req, res, next) => {
 cartRouter.use(authOnly);
 
 cartRouter.get("/", async (req, res) => {
-  res.json({ cart: await cartService.getCart(req.session!.userId) });
+  res.json({
+    cart: (await cartService.getCart(req.session!.userId)).cartItems,
+  });
 });
 
 cartRouter.post(
