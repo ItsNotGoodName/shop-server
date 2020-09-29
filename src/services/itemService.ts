@@ -4,7 +4,7 @@ import { User } from "../entities/User";
 class ItemService {
   limit: number;
   itemSelect: string[];
-  userSelect: string[];
+  sellorSelect: string[];
   constructor() {
     this.limit = 10;
     this.itemSelect = [
@@ -14,7 +14,7 @@ class ItemService {
       "item.price",
       "item.createdAt",
     ];
-    this.userSelect = ["sellor.id", "sellor.username"];
+    this.sellorSelect = ["sellor.id", "sellor.username"];
   }
 
   async create(
@@ -41,7 +41,7 @@ class ItemService {
     const [items, count] = await Item.createQueryBuilder("item")
       .select(this.itemSelect)
       .leftJoin("item.sellor", "sellor")
-      .addSelect(this.userSelect)
+      .addSelect(this.sellorSelect)
       .leftJoinAndSelect("item.photos", "item.photos")
       .orderBy("item.id", "DESC")
       .skip(skip)
@@ -55,7 +55,7 @@ class ItemService {
       .select(this.itemSelect)
       .where("item.id = :id", { id })
       .leftJoin("item.sellor", "sellor")
-      .addSelect(this.userSelect)
+      .addSelect(this.sellorSelect)
       .leftJoinAndSelect("item.photos", "photos")
       .getOne();
   }
