@@ -25,6 +25,9 @@ export class Item extends BaseEntity {
   @Column("numeric", { scale: 2, transformer: ColumnNumericTransformer })
   price: number;
 
+  @Column()
+  sellorId: number;
+
   @ManyToOne(() => User, (user) => user.items)
   sellor: User;
 

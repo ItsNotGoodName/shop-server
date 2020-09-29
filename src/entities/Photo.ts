@@ -16,6 +16,9 @@ export class Photo extends BaseEntity {
   @Column()
   url: string;
 
+  @Column()
+  itemId: number;
+
   @ManyToOne(() => Item, (item) => item.photos)
   item: Item;
 
