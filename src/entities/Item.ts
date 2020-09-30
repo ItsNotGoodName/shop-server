@@ -8,9 +8,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { User } from "./User";
-import ColumnNumericTransformer from "../utils/ColumnNumericTransforme";
+import { MONEY_COLUMN_OPTION } from "../constants";
 import { Photo } from "./Photo";
+import { User } from "./User";
 @Entity()
 export class Item extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -22,7 +22,7 @@ export class Item extends BaseEntity {
   @Column()
   description: string;
 
-  @Column("numeric", { scale: 2, transformer: ColumnNumericTransformer })
+  @Column("numeric", MONEY_COLUMN_OPTION)
   price: number;
 
   @Column()

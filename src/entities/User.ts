@@ -9,9 +9,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Item } from "./Item";
-import ColumnNumericTransformer from "../utils/ColumnNumericTransforme";
+import { MONEY_COLUMN_OPTION } from "../constants";
 import { Cart } from "./Cart";
+import { Item } from "./Item";
 
 @Entity()
 export class User extends BaseEntity {
@@ -27,11 +27,7 @@ export class User extends BaseEntity {
   @Column()
   password!: string;
 
-  @Column("numeric", {
-    scale: 2,
-    default: 0,
-    transformer: ColumnNumericTransformer,
-  })
+  @Column("numeric", MONEY_COLUMN_OPTION)
   balance: number;
 
   @OneToMany(() => Item, (item) => item.sellor)

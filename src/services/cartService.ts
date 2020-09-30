@@ -1,24 +1,41 @@
+import { Cart } from "../entities/Cart";
 import { CartItem } from "../entities/CartItems";
 import { Item } from "../entities/Item";
-import { Cart } from "../entities/Cart";
 import { User } from "../entities/User";
-import { selectFields } from "express-validator/src/select-fields";
 import itemService from "./itemService";
-import { QueryBuilder } from "typeorm";
 
 class CartService {
+  cartSelect: string[];
+  constructor() {
+    this.cartSelect = ["cart.total"];
+  }
   create(): Promise<Cart> {
     return Cart.create().save();
   }
 
-  async getCart(userId: number): Promise<Cart> {
-    const user = await User.findOne(userId, { relations: ["cart"] });
-    return user!.cart;
+  async getCart(userId: number): Promise<Cart | undefined> {
+    return Cart.createQueryBuilder("cart")
+      .select(this.cartSelect)
+      .where((qb) => {
+        const sub = qb
+          .subQuery()
+          .select('"cartId"')
+          .from(User, "user")
+          .where("user.id = :userId")
+          .getQuery();
+        return "cart.id = " + sub;
+      })
+      .leftJoin("cart.cartItems", "cartItems")
+      .addSelect("cartItems.quantity")
+      .leftJoin("cartItems.item", "item")
+      .addSelect(itemService.itemSelect)
+      .setParameter("userId", userId)
+      .getOne();
   }
 
   async getCartItems(userId: number): Promise<CartItem[]> {
     const cartItems = await CartItem.createQueryBuilder("cartitem")
-      .select(["cartitem.quantity", "cartitem.item"])
+      .select(["cartitem.quantity"])
       .where((qb) => {
         const sub = qb
           .subQuery()
@@ -31,6 +48,7 @@ class CartService {
       .setParameter("userId", userId)
       .leftJoin("cartitem.item", "item")
       .addSelect(itemService.itemSelect)
+      .orderBy("cartitem.createdAt", "ASC")
       .getMany();
     return cartItems;
   }
@@ -42,6 +60,14 @@ class CartService {
       }
     }
     return -1;
+  }
+
+  calculateCart(cartItems: CartItem[]) {
+    let total = 0;
+    for (let i = 0; i < cartItems.length; i++) {
+      total += cartItems[i].quantity * cartItems[i].item.price;
+    }
+    return total;
   }
 
   async setCartItem(

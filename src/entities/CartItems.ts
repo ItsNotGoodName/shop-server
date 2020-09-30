@@ -1,10 +1,10 @@
 import {
   BaseEntity,
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Cart } from "./Cart";
@@ -29,4 +29,7 @@ export class CartItem extends BaseEntity {
 
   @ManyToOne(() => Cart, (cart) => cart.cartItems)
   cart: Cart;
+
+  @CreateDateColumn()
+  createdAt: Date;
 }

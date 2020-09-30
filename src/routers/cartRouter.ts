@@ -16,7 +16,7 @@ const itemIdMid = body("itemId")
 const quantityMid = body("quantity")
   .notEmpty()
   .withMessage("Required")
-  .isInt({ gt: 0, lt: 99 })
+  .isInt({ gt: 0, lt: 100 })
   .withMessage("Not Valid");
 
 const parseItem: RequestHandler = async (req, res, next) => {
@@ -43,7 +43,7 @@ cartRouter.use(authOnly);
 
 cartRouter.get("/", async (req, res) => {
   res.json({
-    cart: await cartService.getCartItems(req.session!.userId),
+    cart: await cartService.getCart(req.session!.userId),
   });
 });
 
@@ -59,7 +59,10 @@ cartRouter.post(
 
     const cart = await cartService.getCart(req.session!.userId);
     await cartService.setCartItem(cart, { item, quantity });
-    res.json({ success: true });
+    res.json({
+      success: true,
+      cart: await cartService.getCartItems(req.session!.userId),
+    });
   }
 );
 
