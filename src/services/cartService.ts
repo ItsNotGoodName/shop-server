@@ -27,33 +27,14 @@ class CartService {
       })
       .leftJoin("cart.cartItems", "cartItems")
       .addSelect("cartItems.quantity")
+      .orderBy("cartItems.createdAt", "ASC")
       .leftJoin("cartItems.item", "item")
       .addSelect(itemService.itemSelect)
       .setParameter("userId", userId)
       .getOne();
   }
 
-  // async getCartItems(userId: number): Promise<CartItem[]> {
-  //   const cartItems = await CartItem.createQueryBuilder("cartitem")
-  //     .select(["cartitem.quantity"])
-  //     .where((qb) => {
-  //       const sub = qb
-  //         .subQuery()
-  //         .select("user.id")
-  //         .from(User, "user")
-  //         .where("user.id = :userId")
-  //         .getQuery();
-  //       return '"cartId" = ' + sub;
-  //     })
-  //     .setParameter("userId", userId)
-  //     .leftJoin("cartitem.item", "item")
-  //     .addSelect(itemService.itemSelect)
-  //     .orderBy("cartitem.createdAt", "ASC")
-  //     .getMany();
-  //   return cartItems;
-  // }
-
-  getIndexOfItemInCart(cart: Cart, { item }: { item: Item }): number {
+  getIndexOfItem(cart: Cart, { item }: { item: Item }): number {
     for (let i = 0; i < cart.cartItems.length; i++) {
       if (cart.cartItems[i].item.id == item.id) {
         return i;
@@ -62,7 +43,7 @@ class CartService {
     return -1;
   }
 
-  calculateCart(cart: Cart) {
+  calculateTotal(cart: Cart) {
     let total = 0;
     const { cartItems } = cart;
     for (let i = 0; i < cartItems.length; i++) {
@@ -100,7 +81,7 @@ class CartService {
     cart: Cart,
     { item, quantity = 1 }: { item: Item; quantity?: number }
   ) {
-    const index = this.getIndexOfItemInCart(cart, { item });
+    const index = this.getIndexOfItem(cart, { item });
 
     // delete if exists
     if (quantity == 0) {
@@ -119,7 +100,7 @@ class CartService {
         await cart.cartItems[index].save();
       }
     }
-    await this.calculateCart((await this.findById(cart.id)) as Cart);
+    await this.calculateTotal((await this.findById(cart.id)) as Cart);
     return;
   }
 }
