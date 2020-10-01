@@ -76,6 +76,7 @@ cartRouter.post(
     res.json({
       cart: await cartService.getCart(req.session!.userId),
     });
+    return;
   }
 );
 

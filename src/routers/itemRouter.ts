@@ -51,7 +51,7 @@ itemRouter.get(
 // itemRouter.delete("/id/:id", (req, res) => {});
 
 itemRouter.post(
-  "/create",
+  "/sell",
   authOnly,
   body("title").notEmpty().isString(),
   body("description").notEmpty().isString(),
