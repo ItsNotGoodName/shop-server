@@ -8,15 +8,15 @@ import { Item } from "src/entities/Item";
 
 const cartRouter = Router();
 
-const itemIdMid = body("itemId")
+const itemIdValidate = body("itemId")
   .notEmpty()
   .withMessage("Required")
   .isInt()
   .withMessage("Not Valid");
-const quantityMid = body("quantity")
+const quantityValidate = body("quantity")
   .notEmpty()
   .withMessage("Required")
-  .isInt({ gt: 0, lt: 100 })
+  .isInt({ gt: -1, lt: 100 })
   .withMessage("Not Valid");
 
 const parseItem: RequestHandler = async (req, res, next) => {
@@ -39,6 +39,15 @@ const parseItem: RequestHandler = async (req, res, next) => {
   next();
 };
 
+const cartNotFoundError = {
+  errors: [
+    {
+      field: "user",
+      msg: "Cart does not exists for user",
+    },
+  ],
+};
+
 cartRouter.use(authOnly);
 
 cartRouter.get("/", async (req, res) => {
@@ -49,34 +58,24 @@ cartRouter.get("/", async (req, res) => {
 
 cartRouter.post(
   "/",
-  itemIdMid,
-  quantityMid,
+  itemIdValidate,
+  quantityValidate,
   handleValidation,
   parseItem,
   async (req, res) => {
     const { quantity }: { quantity: number } = req.body;
     const item = res.locals.item as Item;
 
-    const cart = await cartService.getCart(req.session!.userId);
+    const cart = await cartService.findByUserId(req.session!.userId);
+
+    if (!cart) {
+      return res.json(cartNotFoundError);
+    }
     await cartService.setCartItem(cart, { item, quantity });
+
     res.json({
-      success: true,
-      cart: await cartService.getCartItems(req.session!.userId),
+      cart: await cartService.getCart(req.session!.userId),
     });
-  }
-);
-
-cartRouter.delete(
-  "/",
-  itemIdMid,
-  handleValidation,
-  parseItem,
-  async (req, res) => {
-    const item = res.locals.item as Item;
-
-    const cart = await cartService.getCart(req.session!.userId);
-    const deleteRes = await cartService.deleteCartItem(cart, { item });
-    res.json({ success: !!deleteRes.affected });
   }
 );
 

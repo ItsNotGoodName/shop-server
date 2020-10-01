@@ -33,41 +33,67 @@ class CartService {
       .getOne();
   }
 
-  async getCartItems(userId: number): Promise<CartItem[]> {
-    const cartItems = await CartItem.createQueryBuilder("cartitem")
-      .select(["cartitem.quantity"])
-      .where((qb) => {
-        const sub = qb
-          .subQuery()
-          .select("user.id")
-          .from(User, "user")
-          .where("user.id = :userId")
-          .getQuery();
-        return '"cartId" = ' + sub;
-      })
-      .setParameter("userId", userId)
-      .leftJoin("cartitem.item", "item")
-      .addSelect(itemService.itemSelect)
-      .orderBy("cartitem.createdAt", "ASC")
-      .getMany();
-    return cartItems;
-  }
+  // async getCartItems(userId: number): Promise<CartItem[]> {
+  //   const cartItems = await CartItem.createQueryBuilder("cartitem")
+  //     .select(["cartitem.quantity"])
+  //     .where((qb) => {
+  //       const sub = qb
+  //         .subQuery()
+  //         .select("user.id")
+  //         .from(User, "user")
+  //         .where("user.id = :userId")
+  //         .getQuery();
+  //       return '"cartId" = ' + sub;
+  //     })
+  //     .setParameter("userId", userId)
+  //     .leftJoin("cartitem.item", "item")
+  //     .addSelect(itemService.itemSelect)
+  //     .orderBy("cartitem.createdAt", "ASC")
+  //     .getMany();
+  //   return cartItems;
+  // }
 
   getIndexOfItemInCart(cart: Cart, { item }: { item: Item }): number {
     for (let i = 0; i < cart.cartItems.length; i++) {
-      if (cart.cartItems[i].itemId == item.id) {
+      if (cart.cartItems[i].item.id == item.id) {
         return i;
       }
     }
     return -1;
   }
 
-  calculateCart(cartItems: CartItem[]) {
+  calculateCart(cart: Cart) {
     let total = 0;
+    const { cartItems } = cart;
     for (let i = 0; i < cartItems.length; i++) {
       total += cartItems[i].quantity * cartItems[i].item.price;
     }
-    return total;
+    return Cart.update({ id: cart.id }, { total });
+  }
+
+  async findByUserId(userId: number) {
+    return Cart.createQueryBuilder("cart")
+      .where((qb) => {
+        const sub = qb
+          .subQuery()
+          .select('"cartId"')
+          .from(User, "user")
+          .where("user.id = :userId")
+          .getQuery();
+        return "cart.id = " + sub;
+      })
+      .leftJoinAndSelect("cart.cartItems", "cartItems")
+      .leftJoinAndSelect("cartItems.item", "item")
+      .setParameter("userId", userId)
+      .getOne();
+  }
+
+  async findById(id: number) {
+    return Cart.createQueryBuilder("cart")
+      .where({ id })
+      .leftJoinAndSelect("cart.cartItems", "cartItems")
+      .leftJoinAndSelect("cartItems.item", "item")
+      .getOne();
   }
 
   async setCartItem(
@@ -76,19 +102,25 @@ class CartService {
   ) {
     const index = this.getIndexOfItemInCart(cart, { item });
 
-    if (index == -1) {
-      const cartItem = await CartItem.create({ item, quantity, cart }).save();
-      cart.cartItems.push(cartItem);
-      await cart.save();
-      return;
+    // delete if exists
+    if (quantity == 0) {
+      // it exists
+      if (index != -1) {
+        await CartItem.delete({ cart, item });
+      }
+    } else {
+      // Create new cartItem
+      if (index == -1) {
+        await CartItem.create({ item, quantity, cart }).save();
+      }
+      // Update cartItem
+      else {
+        cart.cartItems[index].quantity = quantity;
+        await cart.cartItems[index].save();
+      }
     }
-    cart.cartItems[index].quantity = quantity;
-    await cart.cartItems[index].save();
+    await this.calculateCart((await this.findById(cart.id)) as Cart);
     return;
-  }
-
-  async deleteCartItem(cart: Cart, { item }: { item: Item }) {
-    return await CartItem.delete({ cart, item });
   }
 }
 
