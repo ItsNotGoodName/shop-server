@@ -10,9 +10,11 @@ export type RegisterType = {
 };
 
 class UserService {
-  safeSelect: (keyof User)[];
+  publicSelect: (keyof User)[];
+  privateSelect: (keyof User)[];
   constructor() {
-    this.safeSelect = ["id", "username", "email", "createdAt"];
+    this.publicSelect = ["id", "username", "email", "createdAt"];
+    this.privateSelect = ["id", "username", "balance", "email", "createdAt"];
   }
 
   async register(
@@ -48,7 +50,7 @@ class UserService {
   }
 
   me(id: number): Promise<User | undefined> {
-    return User.findOne(id, { select: this.safeSelect });
+    return User.findOne(id, { select: this.privateSelect });
   }
 
   findById(id: number): Promise<User | undefined> {
