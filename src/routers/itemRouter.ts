@@ -48,14 +48,19 @@ itemRouter.get(
   }
 );
 
-// itemRouter.delete("/id/:id", (req, res) => {});
-
 itemRouter.post(
   "/sell",
   authOnly,
   body("title").notEmpty().isString(),
   body("description").notEmpty().isString(),
-  body("price").notEmpty().isDecimal(),
+  body("price")
+    .notEmpty()
+    .isDecimal({ decimal_digits: "2" })
+    .custom((val: number) => {
+      val > 0;
+    })
+    .withMessage("Can't be less than or equal to 0"),
+
   handleValidation,
   async (req, res) => {
     const {

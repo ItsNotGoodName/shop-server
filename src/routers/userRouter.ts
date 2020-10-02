@@ -3,17 +3,10 @@ import { body } from "express-validator";
 import { COOKIE_NAME } from "../constants";
 import { authOnly } from "../middleware/authOnly";
 import { handleValidation } from "../middleware/handleValidation";
-import userService from "../services/userService";
+import userService, { RegisterType } from "../services/userService";
 import { ResErrors } from "../types";
-import validator from "validator";
 
 const userRouter = Router();
-
-type RegisterType = {
-  username: string;
-  email: string;
-  password: string;
-};
 
 type LoginType = {
   usernameOrEmail: string;
@@ -79,12 +72,7 @@ userRouter.post(
   handleValidation,
   async (req, res) => {
     const data: LoginType = req.body;
-    let user;
-    if (validator.isEmail(data.usernameOrEmail)) {
-      user = await userService.findUserByEmail(data.usernameOrEmail);
-    } else {
-      user = await userService.findUserByUsername(data.usernameOrEmail);
-    }
+    let user = await userService.findByUsernameOrEmail(data.usernameOrEmail);
 
     if (!user) {
       res.json({

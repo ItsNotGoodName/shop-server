@@ -1,21 +1,12 @@
 import argon2 from "argon2";
+import validator from "validator";
 import { User } from "../entities/User";
 import cartService from "./cartService";
 
-export type registerParams = {
+export type RegisterType = {
   username: string;
   email: string;
   password: string;
-};
-
-export type loginParams = {
-  user: User;
-  password: string;
-};
-
-export type emailOrUsernameParams = {
-  username?: string;
-  email?: string;
 };
 
 class UserService {
@@ -25,7 +16,7 @@ class UserService {
   }
 
   async register(
-    registerData: registerParams
+    registerData: RegisterType
   ): Promise<{ user: User; success: boolean }> {
     const foundUser = await this.findUserByUsername(registerData.username);
 
@@ -46,7 +37,13 @@ class UserService {
     };
   }
 
-  login({ user, password }: loginParams): Promise<boolean> {
+  login({
+    user,
+    password,
+  }: {
+    user: User;
+    password: string;
+  }): Promise<boolean> {
     return argon2.verify(user.password, password);
   }
 
@@ -56,6 +53,14 @@ class UserService {
 
   findById(id: number): Promise<User | undefined> {
     return User.findOne(id);
+  }
+
+  findByUsernameOrEmail(usernameOrEmail: string): Promise<User | undefined> {
+    if (validator.isEmail(usernameOrEmail)) {
+      return this.findUserByEmail(usernameOrEmail);
+    } else {
+      return this.findUserByUsername(usernameOrEmail);
+    }
   }
 
   findUserByEmail(email: string): Promise<User | undefined> {
