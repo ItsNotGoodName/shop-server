@@ -47,6 +47,16 @@ class ItemService {
       .skip(skip)
       .take(limit)
       .getManyAndCount();
+
+    const maxSize = 256;
+    for (let i = 0; i < items.length; i++) {
+      if (maxSize < items[i].description.length) {
+        items[i].description =
+          items[i].description.slice(0, maxSize - 4) + "....";
+      } else {
+        items[i].description = items[i].description.slice(0, maxSize);
+      }
+    }
     return { items, count };
   }
 
