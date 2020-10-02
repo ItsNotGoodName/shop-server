@@ -56,9 +56,7 @@ itemRouter.post(
   body("price")
     .notEmpty()
     .isDecimal({ decimal_digits: "2" })
-    .custom((val: number) => {
-      val > 0;
-    })
+    .custom((val: number) => val > 0)
     .withMessage("Can't be less than or equal to 0"),
 
   handleValidation,
