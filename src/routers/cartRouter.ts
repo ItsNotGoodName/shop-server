@@ -1,52 +1,12 @@
-import Router, { RequestHandler } from "express";
+import Router from "express";
 import { authOnly } from "../middleware/authOnly";
 import cartService from "../services/cartService";
 import { body } from "express-validator";
-import itemService from "../services/itemService";
 import { handleValidation } from "../middleware/handleValidation";
 import { Item } from "src/entities/Item";
+import { parseItem } from "../middleware/parseItem";
 
 const cartRouter = Router();
-
-const itemIdValidate = body("itemId")
-  .notEmpty()
-  .withMessage("Required")
-  .isInt()
-  .withMessage("Not Valid");
-const quantityValidate = body("quantity")
-  .notEmpty()
-  .withMessage("Required")
-  .isInt({ gt: -1, lt: 100 })
-  .withMessage("Not Valid");
-
-const parseItem: RequestHandler = async (req, res, next) => {
-  const { itemId } = req.body;
-  const item = await itemService.findById(itemId);
-  if (!item) {
-    res.json({
-      errors: [
-        {
-          field: "itemId",
-          msg: "Not Found",
-        },
-      ],
-    });
-    return;
-  }
-
-  res.locals.item = item;
-
-  next();
-};
-
-const cartNotFoundError = {
-  errors: [
-    {
-      field: "user",
-      msg: "Cart does not exists for user",
-    },
-  ],
-};
 
 cartRouter.use(authOnly);
 
@@ -58,8 +18,16 @@ cartRouter.get("/", async (req, res) => {
 
 cartRouter.post(
   "/",
-  itemIdValidate,
-  quantityValidate,
+  body("itemId")
+    .notEmpty()
+    .withMessage("Required")
+    .isInt()
+    .withMessage("Not Valid"),
+  body("quantity")
+    .notEmpty()
+    .withMessage("Required")
+    .isInt({ gt: -1, lt: 100 })
+    .withMessage("Not Valid"),
   handleValidation,
   parseItem,
   async (req, res) => {
@@ -69,7 +37,14 @@ cartRouter.post(
     const cart = await cartService.findByUserId(req.session!.userId);
 
     if (!cart) {
-      return res.json(cartNotFoundError);
+      return res.json({
+        errors: [
+          {
+            field: "user",
+            msg: "Cart does not exists for user",
+          },
+        ],
+      });
     }
     await cartService.setCartItem(cart, { item, quantity });
 

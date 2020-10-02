@@ -28,18 +28,19 @@ userRouter.post(
   body("username")
     .notEmpty()
     .withMessage("Missing username")
-    .isLength({ min: 3 })
-    .withMessage("Minumum length 3"),
+    .isLength({ min: 3, max: 127 })
+    .withMessage("Minumum length 3 and maximum length 127"),
   body("email")
     .notEmpty()
     .withMessage("Missing email")
     .isEmail()
-    .withMessage("Not valid email"),
+    .withMessage("Not valid email")
+    .isLength({ max: 127 }),
   body("password")
     .notEmpty()
     .withMessage("Missing password")
-    .isLength({ min: 3 })
-    .withMessage("Minimum Length 3"),
+    .isLength({ min: 3, max: 127 })
+    .withMessage("Minimum Length 3 and maximum length 127"),
   handleValidation,
   async (req, res) => {
     const data: RegisterType = req.body;

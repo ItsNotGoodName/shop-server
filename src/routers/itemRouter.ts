@@ -51,8 +51,8 @@ itemRouter.get(
 itemRouter.post(
   "/sell",
   authOnly,
-  body("title").notEmpty().isString(),
-  body("description").notEmpty().isString(),
+  body("title").notEmpty().isString().isLength({ min: 3, max: 127 }),
+  body("description").notEmpty().isString().isLength({ max: 1023 }),
   body("price")
     .notEmpty()
     .isDecimal({ decimal_digits: "2" })
