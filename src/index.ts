@@ -24,6 +24,7 @@ import userRouter from "./routers/userRouter";
 import { Item } from "./entities/Item";
 import itemRouter from "./routers/itemRouter";
 import { Photo } from "./entities/Photo";
+import { redisConn } from "./redisConn";
 import cartRouter from "./routers/cartRouter";
 import { Cart } from "./entities/Cart";
 import { CartItem } from "./entities/CartItems";
@@ -44,7 +45,7 @@ const main = async () => {
 
   const app = express();
   const RedisStore = connectRedis(session);
-  const redis = new Redis({ host: REDIS_HOST });
+  const redis = redisConn;
 
   app.use(
     session({
