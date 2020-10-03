@@ -1,6 +1,7 @@
 import Router from "express";
 import { body } from "express-validator";
-import { User } from "src/entities/User";
+import { User } from "../entities/User";
+import cartService from "../services/cartService";
 import { Cart } from "../entities/Cart";
 import { authOnly } from "../middleware/authOnly";
 import { cartCheck } from "../middleware/cartMutation";
@@ -12,12 +13,32 @@ const checkoutRouter = Router();
 
 checkoutRouter.use(authOnly);
 
-checkoutRouter.get("/", parseCart, cartCheck, async (req, res) => {
-  const { cart, cartCheck } = res.locals as { cart: Cart; cartCheck: string };
+checkoutRouter.get("/", parseUser, cartCheck, async (req, res) => {
+  const { cartCheck, user } = res.locals as {
+    cartCheck: string;
+    user: User;
+  };
+  const cart = (await cartService.getCart(user.id)) as Cart;
+
+  if (cart.cartItems.length == 0) {
+    res.json({
+      errors: [
+        {
+          field: "cart",
+          msg: "Cart is empty",
+        },
+      ],
+    });
+    return;
+  }
+
+  const remainingBalance = user.balance - cart.total;
 
   res.json({
     cartCheck,
     cart,
+    remainingBalance,
+    canAfford: remainingBalance >= 0,
   });
 });
 
@@ -37,6 +58,18 @@ checkoutRouter.post(
       user: User;
       cartCheck: string;
     };
+
+    if (cart.cartItems.length == 0) {
+      res.json({
+        errors: [
+          {
+            field: "cart",
+            msg: "Cart is empty",
+          },
+        ],
+      });
+      return;
+    }
 
     if (reqCartCheck !== savedCartCheck) {
       res.json({
