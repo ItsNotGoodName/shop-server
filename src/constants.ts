@@ -23,6 +23,7 @@ export const COOKIE_AGE = process.env.COOKIE_AGE
   ? parseInt(process.env.COOKIE_AGE)
   : 1000 * 60 * 60 * 24 * 365 * 10; // 10 Years
 export const SESSION_SECRET = process.env.SESSION_SECRET || "secret";
+export const CART_CHECK_PREFIX = "CART_CHECK_";
 
 export const MONEY_COLUMN_OPTION = {
   scale: 2,

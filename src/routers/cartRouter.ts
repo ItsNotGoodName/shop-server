@@ -3,8 +3,11 @@ import { authOnly } from "../middleware/authOnly";
 import cartService from "../services/cartService";
 import { body } from "express-validator";
 import { handleValidation } from "../middleware/handleValidation";
-import { Item } from "src/entities/Item";
+import { Item } from "../entities/Item";
 import { parseItem } from "../middleware/parseItem";
+import { parseCart } from "../middleware/parseCart";
+import { Cart } from "../entities/Cart";
+import { cartChange } from "../middleware/cartMutation";
 
 const cartRouter = Router();
 
@@ -30,28 +33,17 @@ cartRouter.post(
     .withMessage("Not Valid"),
   handleValidation,
   parseItem,
+  parseCart,
+  cartChange,
   async (req, res) => {
     const { quantity }: { quantity: number } = req.body;
-    const item = res.locals.item as Item;
+    const { item, cart } = res.locals as { item: Item; cart: Cart };
 
-    const cart = await cartService.findByUserId(req.session!.userId);
-
-    if (!cart) {
-      return res.json({
-        errors: [
-          {
-            field: "user",
-            msg: "Cart does not exists for user",
-          },
-        ],
-      });
-    }
     await cartService.setCartItem(cart, { item, quantity });
 
     res.json({
       cart: await cartService.getCart(req.session!.userId),
     });
-    return;
   }
 );
 

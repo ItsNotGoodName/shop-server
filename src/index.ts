@@ -1,9 +1,8 @@
-import path from "path";
-import cors from "cors";
 import connectRedis from "connect-redis";
-import Redis from "ioredis";
+import cors from "cors";
 import express from "express";
 import session from "express-session";
+import path from "path";
 import { createConnection } from "typeorm";
 import {
   COOKIE_AGE,
@@ -16,18 +15,18 @@ import {
   ORIGIN,
   PORT,
   PRODUCTION,
-  REDIS_HOST,
   SESSION_SECRET,
 } from "./constants";
-import { User } from "./entities/User";
-import userRouter from "./routers/userRouter";
-import { Item } from "./entities/Item";
-import itemRouter from "./routers/itemRouter";
-import { Photo } from "./entities/Photo";
-import { redisConn } from "./redisConn";
-import cartRouter from "./routers/cartRouter";
 import { Cart } from "./entities/Cart";
 import { CartItem } from "./entities/CartItems";
+import { Item } from "./entities/Item";
+import { Photo } from "./entities/Photo";
+import { User } from "./entities/User";
+import { redisConn } from "./redisConn";
+import cartRouter from "./routers/cartRouter";
+import checkoutRouter from "./routers/checkoutRouter";
+import itemRouter from "./routers/itemRouter";
+import userRouter from "./routers/userRouter";
 
 const main = async () => {
   const conn = await createConnection({
@@ -78,6 +77,7 @@ const main = async () => {
   app.use("/user", userRouter);
   app.use("/item", itemRouter);
   app.use("/cart", cartRouter);
+  app.use("/checkout", checkoutRouter);
 
   app.listen(PORT, () => {
     console.log("Listening");
