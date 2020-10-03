@@ -8,7 +8,7 @@ import { ResErrors } from "../types";
 
 const userRouter = Router();
 
-type LoginType = {
+type LoginParams = {
   usernameOrEmail: string;
   password: string;
 };
@@ -72,7 +72,7 @@ userRouter.post(
   body("usernameOrEmail").notEmpty().withMessage("Missing username or email"),
   handleValidation,
   async (req, res) => {
-    const data: LoginType = req.body;
+    const data: LoginParams = req.body;
     let user = await userService.findByUsernameOrEmail(data.usernameOrEmail);
 
     if (!user) {
