@@ -47,4 +47,12 @@ cartRouter.post(
   }
 );
 
+cartRouter.delete("/", parseCart, cartChange, async (req, res) => {
+  const clear = await cartService.emptyCart(res.locals.cart);
+  res.json({
+    success: true,
+    affected: clear.affected,
+  });
+});
+
 export default cartRouter;

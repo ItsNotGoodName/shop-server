@@ -103,6 +103,12 @@ class CartService {
     await this.calculateTotal((await this.findById(cart.id)) as Cart);
     return;
   }
+
+  async emptyCart(cart: Cart) {
+    const clear = await CartItem.delete({ cart });
+    await this.calculateTotal((await this.findById(cart.id)) as Cart);
+    return clear;
+  }
 }
 
 export default new CartService();
