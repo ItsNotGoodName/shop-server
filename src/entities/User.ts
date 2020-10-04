@@ -12,6 +12,7 @@ import {
 import { MONEY_COLUMN_OPTION } from "../constants";
 import { Cart } from "./Cart";
 import { Item } from "./Item";
+import { Order } from "./Order";
 
 @Entity()
 export class User extends BaseEntity {
@@ -19,19 +20,23 @@ export class User extends BaseEntity {
   id!: number;
 
   @Column({ unique: true })
-  username!: string;
+  username: string;
 
   @Column({ unique: true })
-  email!: string;
+  email: string;
 
   @Column()
-  password!: string;
+  password: string;
 
   @Column("numeric", MONEY_COLUMN_OPTION)
   balance: number;
 
   @OneToMany(() => Item, (item) => item.sellor)
   items: Item[];
+
+  @OneToMany(() => Order, (order) => order.user)
+  @JoinColumn()
+  orders: Order[];
 
   @Column()
   cartId: number;

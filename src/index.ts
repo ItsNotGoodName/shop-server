@@ -20,6 +20,7 @@ import {
 import { Cart } from "./entities/Cart";
 import { CartItem } from "./entities/CartItems";
 import { Item } from "./entities/Item";
+import { Order } from "./entities/Order";
 import { Photo } from "./entities/Photo";
 import { User } from "./entities/User";
 import { redisConn } from "./redisConn";
@@ -38,14 +39,13 @@ const main = async () => {
     logging: true,
     migrations: [path.join(__dirname, "./migrations/*")],
     synchronize: true,
-    entities: [User, Item, Cart, CartItem, Photo],
+    entities: [User, Item, Cart, CartItem, Photo, Order],
   });
   conn.runMigrations();
 
   const app = express();
   const RedisStore = connectRedis(session);
   const redis = redisConn;
-
   app.use(
     session({
       name: COOKIE_NAME,
