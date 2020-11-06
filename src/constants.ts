@@ -12,7 +12,7 @@ export const ORIGIN = process.env.ORIGIN || "http://localhost:3000";
 export const PORT = process.env.PORT || 4000;
 
 export const DB_TYPE = process.env.DB_TYPE || "postgres";
-export const DB_DATABASE = process.env.DB_DATABASE || "shop";
+export const DB_DATABASE = process.env.DB_DATABASE || "postgres";
 export const DB_USERNAME = process.env.DB_USERNAME || "postgres";
 export const DB_PASSWORD = process.env.DB_PASSWORD || "postgres";
 export const DB_HOST = process.env.DB_HOST || "localhost";
