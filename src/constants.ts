@@ -8,7 +8,7 @@ if (process.env.NODE_ENV !== "production") {
 
 export const PRODUCTION = process.env.NODE_ENV === "production";
 
-export const ORIGIN = process.env.ORIGIN || "http://localhost:3000";
+export const ORIGIN = process.env.ORIGIN || "*";
 export const PORT = process.env.PORT || 4000;
 
 export const DB_TYPE = process.env.DB_TYPE || "postgres";
